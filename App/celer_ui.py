@@ -6,8 +6,9 @@ from tkinter import messagebox
 
 
 class log_ui:
-	def __init__(self):
+	def __init__(self, network):
 		self.window = tk.Tk(className = 'celer')
+		self.network = network
 
 		#Tabs Setup
 		self.notebook = ttk.Notebook(self.window)
@@ -16,7 +17,6 @@ class log_ui:
 
 		#Defining General font
 		self.font = tk.font.Font( family = 'Roboto', size = 20)
-
 
 		#Wigets in tab1
 		self.title_signin = tk.Label(self.tab1,text = 'celer\nSign in Window', font = self.font, fg = 'white', bg ='grey')
@@ -28,7 +28,7 @@ class log_ui:
 		self.title_signup = tk.Label(self.tab2,text = 'celer\nSign up Window', font = self.font, fg = 'white', bg ='grey')
 		self.username_signup = tk.Entry(self.tab2, bg = 'white', width = 20, borderwidth = 0, font = self.font)
 		self.password_signup = tk.Entry(self.tab2, bg = 'white', width = 20, borderwidth = 0, font = self.font, show = '*')
-		self.button_singnup = tk.Button(self.tab2, text = 'Signup!', command = self.getdataSignup)
+		self.button_singnup = tk.Button(self.tab2, text = 'Signup!', command = self.getdataSignup)		
 
 	def drawUI(self):
 		self.notebook.pack()#Drawing notebook
@@ -45,7 +45,6 @@ class log_ui:
 		self.password_signup.place(x=5,y=150,height=40)
 		self.button_singnup.place(x=5,y=200)
 
-
 		#Tab drawing stuff
 		self.tab1.place(x =0,y=0, anchor = 'center')
 		self.tab2.place(x =0,y=0, anchor = 'center')
@@ -53,12 +52,29 @@ class log_ui:
 		self.notebook.add(self.tab2, text = 'Signup')
 
 	def getdataSignin(self):
-		self.revUsernameSignin = self.username_signin.get()#Variable for username of Tab1
-		self.revPasswordSignin = self.password_signin.get()#Variable for password of Tab1
+		username = self.username_signin.get()#Variable for username of Tab1
+		password = self.password_signin.get()#Variable for password of Tab1
+
+		token = "[LOGIN]"
+		info = f"{token} username:{username} password:{password}"
+		self.network.send(info)
+
+		# Reciving the reply from the server
+		reply = self.network.recv()
+		print(reply)
+
 	def getdataSignup(self):
-		self.revUsernameSignup = self.username_signup.get()#Variable for username of Tab2
-		self.revPasswordSignup = self.password_signup.get()	#Variable for password of Tab2
+		username = self.username_signup.get()#Variable for username of Tab2
+		password = self.password_signup.get()	#Variable for password of Tab2
 		
+		token = "[SIGNUP]"
+		info = f"{token} username:{username} password:{password}"
+		self.network.send(info)
+
+		# Reciving the reply from the server
+		reply = self.network.recv()
+		print(reply)
+
 	def winUI(self):
 		#Window setup
 		self.window.geometry('500x600')	
