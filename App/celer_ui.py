@@ -83,7 +83,11 @@ class log_ui:
 
 		# Reciving the reply from the server
 		reply = self.network.recv()
-		print(reply)
+		
+		if reply == "[ACCEPTED]":
+			print("go to home page")
+		elif reply == "[REJECTED]":
+			print("username or password is wrong")
 
 	def getdataSignup(self):
 		self.button_singnup.config(image = self.button_pressed_up)
@@ -96,15 +100,15 @@ class log_ui:
 
 		# Reciving the reply from the server
 		reply = self.network.recv()
-		print(reply)
+		
+		if reply == "[ACCEPTED]":
+			print("go to home page")
+		elif reply == "[REJECTED]":
+			print("username already exists")
 
 	def winUI(self):
 		#Window setup
 		self.window.geometry('900x600')	
 		self.window.resizable(False, False)
 		self.window.mainloop()
-
-
-
-
    
