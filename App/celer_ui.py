@@ -10,40 +10,61 @@ class log_ui:
 		self.window = tk.Tk(className = 'celer')
 		self.network = network
 
+		#Importing stuff
+		self.bg_img = tk.PhotoImage(file = 'Ui/Images/bg.png')
+		self.button_nopressed = tk.PhotoImage(file = 'Ui/Images/notpressed.png')
+		self.button_pressed = tk.PhotoImage( file = 'Ui/Images/pressed.png')
+		self.button_nopressed_up = tk.PhotoImage( file = 'Ui/Images/notpressed_up.png')
+		self.button_pressed_up = tk.PhotoImage( file = 'Ui/Images/pressed_up.png')
+
+		#background
+		self.bg = tk.Label(image = self.bg_img)
+
 		#Tabs Setup
-		self.notebook = ttk.Notebook(self.window)
-		self.tab1 = tk.Frame(self.notebook, width = 490, height = 700, bg = 'grey')
-		self.tab2 = tk.Frame(self.notebook, width = 490, height = 700, bg = 'grey')
+		self.notebook = ttk.Notebook(self.window,style="TNotebook")
+		self.tab1 = tk.Frame(self.notebook, width = 350, height = 500, bg = 'white')
+		self.tab2 = tk.Frame(self.notebook, width = 350, height = 500, bg = 'white')
 
 		#Defining General font
-		self.font = tk.font.Font( family = 'Roboto', size = 20)
+		self.font = tk.font.Font( family = 'Bahnschrift Light', size = 20)
 
 		#Wigets in tab1
-		self.title_signin = tk.Label(self.tab1,text = 'celer\nSign in Window', font = self.font, fg = 'white', bg ='grey')
-		self.username_signin = tk.Entry(self.tab1, bg = 'white', width = 20, borderwidth = 0, font = self.font)
-		self.password_signin = tk.Entry(self.tab1, bg = 'white', width = 20, borderwidth = 0, font = self.font, show = '*')
-		self.button_singnin = tk.Button(self.tab1, text = 'Signin!', command = self.getdataSignin)
+		self.title_signin = tk.Label(self.tab1,text = 'celer\nSign in Window', font = self.font, fg = '#6e6e6e', bg ='white')
+		self.title_username_signin = tk.Label(self.tab1,text = 'Username:', font = self.font, fg = '#6e6e6e', bg ='white')
+		self.username_signin = tk.Entry(self.tab1, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font)
+		self.title_password_signin = tk.Label(self.tab1,text = 'Password:', font = self.font, fg = '#6e6e6e', bg ='white')
+		self.password_signin = tk.Entry(self.tab1, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font, show = '*')
+		self.button_singnin = tk.Button(self.tab1, text = 'Signin!', command = self.getdataSignin, image = self.button_nopressed, bg = 'white', borderwidth = 0, relief='sunken')
 
 		#Wigets in tab2
-		self.title_signup = tk.Label(self.tab2,text = 'celer\nSign up Window', font = self.font, fg = 'white', bg ='grey')
-		self.username_signup = tk.Entry(self.tab2, bg = 'white', width = 20, borderwidth = 0, font = self.font)
-		self.password_signup = tk.Entry(self.tab2, bg = 'white', width = 20, borderwidth = 0, font = self.font, show = '*')
-		self.button_singnup = tk.Button(self.tab2, text = 'Signup!', command = self.getdataSignup)		
+		self.title_signup = tk.Label(self.tab2,text = 'celer\nSign up Window', font = self.font, fg = '#6e6e6e', bg ='white')
+		self.title_username_signup = tk.Label(self.tab2,text = 'Username:', font = self.font, fg = '#6e6e6e', bg ='white')
+		self.username_signup = tk.Entry(self.tab2, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font)
+		self.title_password_signup = tk.Label(self.tab2,text = 'Password:', font = self.font, fg = '#6e6e6e', bg ='white')
+		self.password_signup = tk.Entry(self.tab2, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font, show = '*')
+		self.button_singnup = tk.Button(self.tab2, text = 'Signup!', command = self.getdataSignup, image = self.button_nopressed_up, bg = 'white', borderwidth = 0, relief='sunken')	
+
+
 
 	def drawUI(self):
-		self.notebook.pack()#Drawing notebook
+		self.bg.place(x=-1, y=0)
+		self.notebook.place(x=490,y=30)#Drawing notebook
+
+		#Drawing widgets in tab1
+		self.title_signin.place(x=80,y=0)
+		self.title_username_signin.place(x = 30, y = 160)
+		self.username_signin.place(x=30, y=200, height = 40)
+		self.title_password_signin.place(x = 30, y = 260)
+		self.password_signin.place(x = 30, y = 300, height = 40)
+		self.button_singnin.place(x=40, y= 400)
 
 		#Drawing widgets in tab2
-		self.title_signin.place(x=0,y=0)
-		self.username_signin.place(x=5, y=100, height = 40)
-		self.password_signin.place(x = 5, y = 150, height = 40)
-		self.button_singnin.place(x=5, y= 200)
-
-		#Drawing widgets in tab2
-		self.title_signup.place(x=0,y=0)
-		self.username_signup.place(x=5,y=100, height = 40)
-		self.password_signup.place(x=5,y=150,height=40)
-		self.button_singnup.place(x=5,y=200)
+		self.title_signup.place(x=80,y=0)
+		self.title_username_signup.place(x=30,y=160)
+		self.username_signup.place(x=30,y=200, height = 40)
+		self.title_password_signup.place(x=30,y=260)
+		self.password_signup.place(x=30,y=300,height=40)
+		self.button_singnup.place(x=40,y=400)
 
 		#Tab drawing stuff
 		self.tab1.place(x =0,y=0, anchor = 'center')
@@ -52,6 +73,7 @@ class log_ui:
 		self.notebook.add(self.tab2, text = 'Signup')
 
 	def getdataSignin(self):
+		self.button_singnin.config(image = self.button_pressed)
 		username = self.username_signin.get()#Variable for username of Tab1
 		password = self.password_signin.get()#Variable for password of Tab1
 
@@ -64,6 +86,7 @@ class log_ui:
 		print(reply)
 
 	def getdataSignup(self):
+		self.button_singnup.config(image = self.button_pressed_up)
 		username = self.username_signup.get()#Variable for username of Tab2
 		password = self.password_signup.get()	#Variable for password of Tab2
 		
@@ -77,7 +100,7 @@ class log_ui:
 
 	def winUI(self):
 		#Window setup
-		self.window.geometry('500x600')	
+		self.window.geometry('900x600')	
 		self.window.resizable(False, False)
 		self.window.mainloop()
 
