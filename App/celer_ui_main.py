@@ -11,6 +11,7 @@ class main_ui:
 
 		#Defining General font
 		self.font = tk.font.Font( family = 'Bahnschrift Light', size = 20)
+		self.font2 = tk.font.Font( family = 'Bahnschrift Light', size = 10)
 
 		#Defining stuff
 		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = '#d6d6d6') #Chat text box!
@@ -20,6 +21,7 @@ class main_ui:
 		self.serverList.config(yscrollcommand = self.vertical.set)
 		self.vertical.config(command = self.serverList.yview)
 		self.serverSelect = self.serverList.curselection()
+		self.serverCreatebutton = tk.Button(text = 'Create Server',command = self.createServer)
 
 		#Checks if enter is pressed
 		self.chatEntry.bind('<Return>', self.chatEntryDataGet)
@@ -34,9 +36,11 @@ class main_ui:
 	def drawUI(self):
 		self.serverList.pack(side = 'left')
 		self.vertical.pack(side = 'left')
+		self.serverCreatebutton.pack(side = 'top')
 		self.chatEntry.pack(side = 'bottom')
 		self.chatDisplay.pack(side = 'top')
 		self.serverList.insert(1,'ServerName')
+
 	
 
 	def winUI(self):
@@ -53,4 +57,24 @@ class main_ui:
 		self.drawUI()
 		self.winUI()
 		
+	def createServer(self):
+		self.serverCreatewindow = tk.Toplevel(self.window) #Defining new window
+
+		#Defining stuff
+		self.serverName = tk.Entry(self.serverCreatewindow,width = 30, font = self.font2, borderwidth = 0, bg = '#d6d6d6' )
+		self.serverCreatelabel = tk.Label(self.serverCreatewindow, text = 'Enter the name of the server:', font = self.font2)
+		self.serverCreatebutton = tk.Button(self.serverCreatewindow, text = 'Create Server', command = self.revServername)
+
+		#Drawing stuff
+		self.serverCreatelabel.place(x=0,y=0)
+		self.serverName.place(x=0,y=30)
+		self.serverCreatebutton.place( x = 240, y = 30)
 		
+		#Window property stuff
+		self.serverCreatewindow.resizable(False, False)
+		self.serverCreatewindow.title("Create Server")
+		self.serverCreatewindow.geometry("390x180")	
+
+	def revServername(self):
+		self.svName = self.serverName.get()#Server Name data!
+		print(self.svName)#Testing!		
