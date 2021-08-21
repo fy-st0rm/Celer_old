@@ -88,7 +88,8 @@ class log_ui:
 		
 		if reply == "[ACCEPTED]":
 			self.window.destroy()
-			self.mainUi = main_ui()
+			self.mainUi = main_ui(username, self.network)
+
 			self.mainUi.startUI()
 			
 		elif reply == "[REJECTED]":
@@ -99,7 +100,7 @@ class log_ui:
 		username = self.username_signup.get()#Variable for username of Tab2
 		password = self.password_signup.get()	#Variable for password of Tab2
 		
-		if len(password) > 8:
+		if len(password) != 8:
 			tk.messagebox.showerror("error", "password limit is 8 characters!")		
 		else:
 			token = "[SIGNUP]"
@@ -109,7 +110,7 @@ class log_ui:
 			reply = self.network.recv()
 			if reply == "[ACCEPTED]":
 				self.window.destroy()
-				self.mainUi = main_ui()
+				self.mainUi = main_ui(username, self.network)
 				self.mainUi.startUI()
 			elif reply == "[REJECTED]":
 				tk.messagebox.showerror("error", "username already exsists!")	

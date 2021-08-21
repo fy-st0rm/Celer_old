@@ -2,6 +2,7 @@ import threading
 import socket
 import json
 import os
+import time
 
 
 # Colors for terminal
@@ -36,6 +37,10 @@ class Server:
 		self.LOGIN = "[LOGIN]"
 		self.SIGNUP = "[SIGNUP]"
 		self.DISCONNECT = "[DISCONNECT]"
+		self.MSG = "[MSG]"
+		self.SERVER = "[SERVER]"
+		self.NEW_SV = "[NEW_SV]"
+		self.JOIN = "[JOIN]"
 
 	# Serialization of clients data
 	def __load_data(self):
@@ -80,7 +85,8 @@ class Server:
 					self.clients.update({username: 
 											{
 												"password": password,
-												"ip": addr[0]
+												"ip": addr[0],
+												"sv": []
 											}
 										})
 					self.__save_data()
@@ -92,6 +98,59 @@ class Server:
 			# If the app closed
 			elif tokens[0] == self.DISCONNECT:
 				return [False, username]
+	
+	# Function to create new server
+	def __create_new_sv(self, conn, key, name):
+		servers = os.listdir(os.path.join("Servers"))
+		if key in servers:
+			conn.send(self.REJECTED.encode(self.FORMAT))
+		else:
+			conn.send(self.ACCEPTED.encode(self.FORMAT))
+
+			os.mkdir(os.path.join(f"Servers/{key}"))
+			sv_info = {
+					"name": name,
+					"mem": []
+				}
+
+			# Saving the info
+			with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
+				json.dump(sv_info, w)
+
+	# Function to send the joined servers' data
+	def __send_server_data(self, conn, username):
+		servers = self.clients[username]["sv"]
+		total_servers = os.listdir(os.path.join("Servers"))
+
+		data_to_send = self.SERVER
+
+		for i in servers:
+			for j in total_servers:
+				if i == j:
+					# Getting server infos
+					with open(os.path.join(f"Servers/{j}/sv_info.json"), "r") as r:
+						sv_info = json.load(r)
+					r.close()
+				
+					name = sv_info["name"]
+					key = j
+
+					data_to_send += f" {key}:{name}"
+
+		conn.send(data_to_send.encode(self.FORMAT))
+
+	# Function to join in a server
+	def __join_to_server(self, key, name):
+		self.clients[name]["sv"].append(key)
+		self.__save_data()
+
+		with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
+			sv_info = json.load(r)
+		
+		sv_info["mem"].append(name)
+		
+		with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
+			json.dump(sv_info, w)
 
 	def __handle_clients(self, conn, addr):	
 		# Handle login and signup
@@ -100,6 +159,8 @@ class Server:
 		# Give the user the required data when they are in home page
 		if client_online[0]:
 			self.active_clients.update({client_online[1]: conn})
+			
+			self.__send_server_data(conn, client_online[1])
 
 		# Handle the main client and server data trading
 		while client_online[0]:
@@ -109,6 +170,23 @@ class Server:
 			if tokens[0] == self.DISCONNECT:
 				print(f"{colors.RED}{client_online[1]}: disconnected..{colors.DEFAULT}")
 				client_online[0] = False
+
+			# When new server is created
+			if tokens[0] == self.NEW_SV:
+				key = tokens[1].split(":")[1]
+				name = tokens[2].split(":")[1]
+
+				self.__create_new_sv(conn, key, name)
+			
+			# When member joins a server
+			elif tokens[0] == self.JOIN:
+				name = tokens[1].split(":")[1]
+				key = tokens[2].split(":")[1]
+
+				self.__join_to_server(key, name)
+
+				time.sleep(0.5)
+				self.__send_server_data(conn, name)
 
 	# Server stuff
 	def __create_server(self):
