@@ -30,7 +30,8 @@ class Server:
 		self.SERVER = "[SERVER]"
 		self.NEW_SV = "[NEW_SV]"
 		self.JOIN = "[JOIN]"
-
+		self.SELECT = "[SELECT]"
+	
 		self.running = True
 
 	# Serialization of clients data
@@ -111,6 +112,10 @@ class Server:
 				json.dump(sv_info, w)
 			w.close()
 
+			# Creating new chat file
+			f = open(os.path.join(f"Servers/{key}/chat.txt"), "w")
+			f.close()
+
 	# Function to send the joined servers' data
 	def __send_server_data(self, conn, username):
 		servers = self.clients[username]["sv"]
@@ -133,6 +138,41 @@ class Server:
 
 		conn.send(data_to_send.encode(self.FORMAT))
 
+	# Message stuff
+	def __send_msg_history(self, conn, key):
+		sv_list = os.listdir(os.path.join(f"Servers"))
+		
+		if key in sv_list:
+			with open(os.path.join(f"Servers/{key}/chat.txt"), "r") as r:
+				chat_history = r.read()
+
+			data = self.MSG + " " + chat_history
+			conn.send(data.encode(self.FORMAT))
+
+	def __send_msg(self, key, msg):
+		sv_list = os.listdir(os.path.join(f"Servers"))
+
+		if key in sv_list:
+			with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
+				sv_info = json.load(r)
+			r.close()
+
+			members = sv_info["mem"]
+			
+			# Sending the online members the msg
+			for i in members:
+				if i in self.active_clients:
+					self.active_clients[i].send(msg.encode(self.FORMAT))
+
+			# Saving the msg
+			tokens = msg.split(" ")
+			tokens.pop(0)
+			msg = " ".join(tokens)
+
+			with open(os.path.join(f"Servers/{key}/chat.txt"), "a") as a:
+				a.write(msg)
+			a.close()
+
 	# Function to join in a server
 	def __join_to_server(self, key, name):
 		self.clients[name]["sv"].append(key)
@@ -149,6 +189,8 @@ class Server:
 		w.close()
 
 	def __handle_clients(self, conn, addr):	
+		current_sv = None
+
 		# Handle login and signup
 		client_online = self.__handle_login(conn, addr)
 
@@ -184,7 +226,17 @@ class Server:
 
 				time.sleep(0.5)
 				self.__send_server_data(conn, name)
+			
+			# When user selects a server
+			elif tokens[0] == self.SELECT:
+				key = tokens[1]
+				self.__send_msg_history(conn, key)
+				current_sv = key
 
+			# When user sends a msg
+			elif tokens[0] == self.MSG:
+				self.__send_msg(current_sv, recv_info)	
+	
 		conn.close()
 
 	# Server stuff

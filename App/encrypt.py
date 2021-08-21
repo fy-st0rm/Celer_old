@@ -10,16 +10,11 @@ def generate_key():
 
 def encrypt(string, key):
 	enc_str = ""
-	counter = 1
 	key_index = 0
 
 	for i in string:
-		if counter % 2 == 0:
-			enc_str += chr(ord(i) - (int(key[key_index]) * 2))
-		else:
-			enc_str += chr(ord(i) + (int(key[key_index]) * 3))
-
-		counter += 1
+		enc_str += chr(ord(i) - (int(key[key_index])))
+		
 		key_index += 1
 		if key_index >= 5:
 			key_index = 0
@@ -29,16 +24,11 @@ def encrypt(string, key):
 
 def decrypt(string, key):
 	dec_str = ""
-	counter = 1
 	key_index = 0
 
 	for i in string:
-		if counter % 2 == 0:
-			dec_str += chr(ord(i) + (int(key[key_index]) * 2))
-		else:
-			dec_str += chr(ord(i) - (int(key[key_index]) * 3))
-
-		counter += 1
+		dec_str += chr(ord(i) + (int(key[key_index])))
+		
 		key_index += 1
 		if key_index >= 5:
 			key_index = 0

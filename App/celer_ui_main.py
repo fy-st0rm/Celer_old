@@ -54,14 +54,16 @@ class main_ui:
 		elif platform.system() == "Windows":
 			self.window.state("zoomed")		
 
+	def __chat_ui(self):	
+		self.chatEntry.pack(side = 'bottom')
+		self.chatDisplay.pack(side = 'top')
+
 	def drawUI(self):
 		self.serverList.pack(side = 'left')
 		self.vertical.pack(side = 'left')
 		self.serverCreatebutton.pack(side = 'top')
 		self.serverJoinbutton.pack(side= 'top')
-		self.chatEntry.pack(side = 'bottom')
-		self.chatDisplay.pack(side = 'top')
-		self.serverList.insert(1,'ServerNames:')
+		#self.serverList.insert(1,'ServerNames:')
 
 	def winUI(self):
 		self.window.geometry('940x500')
@@ -71,7 +73,13 @@ class main_ui:
 	def chatEntryDataGet(self,event):
 		self.chatEntryData = self.chatEntry.get() #Puts the data in the variable
 		self.chatEntry.delete(0, 'end')#Deletes the data written in entry
-			
+		
+		# Sending the msg to server
+		token = "[MSG]"
+		enc_data = encrypt(f"[{self.user}]: {self.chatEntryData}\n", self.key)
+		data = f"{token} {enc_data}"
+		self.network.send(data)
+
 	def __receiver(self):
 		while self.running:
 			recv_info = self.network.recv()
@@ -96,6 +104,17 @@ class main_ui:
 				self.__join_sv(self.key)
 			elif tokens[0] == "[ACCEPTED]":
 				self.__join_sv(self.key)
+
+			# When it catches a msg
+			elif tokens[0] == "[MSG]":
+				if len(tokens) > 1:
+					tokens.pop(0)
+					print(self.key)
+					enc_msg = " ".join(tokens)
+					print(enc_msg)
+					dec_msg = decrypt(enc_msg, self.key)
+					print("recv:", dec_msg)	
+					self.chatDisplay.insert("end", dec_msg)
 
 	def startUI(self):
 		recv_thread = threading.Thread(target = self.__receiver)
@@ -167,4 +186,12 @@ class main_ui:
 
 	def connectServerselected(self,event):
 		self.selectedServer = self.serverList.get('anchor')#Gets the data from the selected item
-		print(self.selectedServer) 
+		
+		# Telling the server that we selected a server
+		self.key = self.selectedServer.split(":")[0]
+		self.network.send("[SELECT] " + self.key)
+
+		self.chatEntry.pack_forget()
+		self.chatDisplay.pack_forget()
+
+		self.__chat_ui()
