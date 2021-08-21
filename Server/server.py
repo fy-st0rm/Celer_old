@@ -4,18 +4,7 @@ import json
 import os
 import time
 
-
-# Colors for terminal
-class colors:
-    PURPLE = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    DEFAULT = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+from cmd_line import *
 
 
 class Server:
@@ -41,6 +30,8 @@ class Server:
 		self.SERVER = "[SERVER]"
 		self.NEW_SV = "[NEW_SV]"
 		self.JOIN = "[JOIN]"
+
+		self.running = True
 
 	# Serialization of clients data
 	def __load_data(self):
@@ -168,9 +159,10 @@ class Server:
 			tokens = recv_info.split(" ")
 
 			if tokens[0] == self.DISCONNECT:
-				print(f"{colors.RED}{client_online[1]}: disconnected..{colors.DEFAULT}")
 				client_online[0] = False
 				conn.send(self.DISCONNECT.encode(self.FORMAT))		
+
+				self.active_clients.pop(client_online[1])
 
 			# When new server is created
 			if tokens[0] == self.NEW_SV:
@@ -204,14 +196,23 @@ class Server:
 
 		self.__create_server()
 		self.__load_data()
+		
+		# Cmd line
+		self.cmd_line = CmdLine(self)
+		cmd_line_thread = threading.Thread(target = self.cmd_line.start)
+		cmd_line_thread.start()
 
 		self.server.listen()
-		while True:
-			conn, addr = self.server.accept()
-			
-			# Creating a new thread
-			client_thread = threading.Thread(target = self.__handle_clients, args = (conn, addr, ))
-			client_thread.start()
+
+		while self.running:
+			try:
+				conn, addr = self.server.accept()
+				
+				# Creating a new thread
+				client_thread = threading.Thread(target = self.__handle_clients, args = (conn, addr, ))
+				client_thread.start()
+			except Exception as e:
+				print(f"{colors.RED}{e}{colors.DEFAULT}")
 
 
 if __name__ == "__main__":
