@@ -3,12 +3,14 @@ import tkinter.font
 from tkinter import messagebox
 from tkinter import ttk
 from tkinter import messagebox
+from celer_ui_main import*
 
 
 class log_ui:
 	def __init__(self, network):
 		self.window = tk.Tk(className = 'celer')
 		self.network = network
+
 
 		#Importing stuff
 		self.bg_img = tk.PhotoImage(file = 'Ui/Images/bg.png')
@@ -85,26 +87,32 @@ class log_ui:
 		reply = self.network.recv()
 		
 		if reply == "[ACCEPTED]":
-			print("go to home page")
+			self.window.destroy()
+			self.mainUi = main_ui()
+			self.mainUi.startUI()
+			
 		elif reply == "[REJECTED]":
-			print("username or password is wrong")
+			tk.messagebox.showerror("error", "username or password is wrong!")
 
 	def getdataSignup(self):
 		self.button_singnup.config(image = self.button_pressed_up)
 		username = self.username_signup.get()#Variable for username of Tab2
 		password = self.password_signup.get()	#Variable for password of Tab2
 		
-		token = "[SIGNUP]"
-		info = f"{token} username:{username} password:{password}"
-		self.network.send(info)
-
-		# Reciving the reply from the server
-		reply = self.network.recv()
-		
-		if reply == "[ACCEPTED]":
-			print("go to home page")
-		elif reply == "[REJECTED]":
-			print("username already exists")
+		if len(password) > 8:
+			tk.messagebox.showerror("error", "password limit is 8 characters!")		
+		else:
+			token = "[SIGNUP]"
+			info = f"{token} username:{username} password:{password}"
+			self.network.send(info)
+			# Reciving the reply from the server
+			reply = self.network.recv()
+			if reply == "[ACCEPTED]":
+				self.window.destroy()
+				self.mainUi = main_ui()
+				self.mainUi.startUI()
+			elif reply == "[REJECTED]":
+				tk.messagebox.showerror("error", "username already exsists!")	
 
 	def winUI(self):
 		#Window setup
