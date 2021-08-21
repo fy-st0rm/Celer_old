@@ -18,6 +18,7 @@ class main_ui:
 		self.network = network
 		self.running = True
 		self.user = user
+		self.key = ""
 
 		#Defining General font
 		self.font = tk.font.Font( family = 'Bahnschrift Light', size = 20)
@@ -67,7 +68,7 @@ class main_ui:
 			if tokens[0] == "[DISCONNECT]":
 				self.running = False
 
-			if tokens[0] == "[SERVER]":
+			elif tokens[0] == "[SERVER]":
 				tokens.pop(0)
 
 				for i in tokens:
@@ -75,6 +76,13 @@ class main_ui:
 					name = i.split(":")[1]
 
 					print(key, ":", name)
+
+			# When server creation failed
+			elif tokens[0] == "[REJECTED]":
+				self.key = self.__create_sv(self.svName)	
+				self.__join_sv(self.key)
+			elif tokens[0] == "[ACCEPTED]":
+				self.__join_sv(self.key)
 
 	def startUI(self):
 		recv_thread = threading.Thread(target = self.__receiver)
@@ -111,19 +119,15 @@ class main_ui:
 		
 		return sv_key
 
-	def revServername(self):
-		self.svName = self.serverName.get()#Server Name data!
-
-		key = self.__create_sv(self.svName)
-		# Waiting for reply
-		reply = self.network.recv()
-		if reply == "[REJECTED]":			# When the key generated already exists
-			key = self.__create_sv(self.svName)
-				
+	def __join_sv(self, key):	
 		# Joining the sv
 		token = "[JOIN]"
 		info = f"{token} name:{self.user} key:{key}"
 		
 		self.network.send(info)
-		
-		self.serverCreateWindow.destroy()
+
+	def revServername(self):
+		self.svName = self.serverName.get()#Server Name data!
+		self.key = self.__create_sv(self.svName)
+
+

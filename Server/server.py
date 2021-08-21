@@ -149,8 +149,7 @@ class Server:
 
 		# Give the user the required data when they are in home page
 		if client_online[0]:
-			self.active_clients.update({client_online[1]: conn})
-			
+			self.active_clients.update({client_online[1]: conn})	
 			self.__send_server_data(conn, client_online[1])
 
 		# Handle the main client and server data trading
