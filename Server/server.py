@@ -170,6 +170,7 @@ class Server:
 			if tokens[0] == self.DISCONNECT:
 				print(f"{colors.RED}{client_online[1]}: disconnected..{colors.DEFAULT}")
 				client_online[0] = False
+				conn.send(self.DISCONNECT.encode(self.FORMAT))		
 
 			# When new server is created
 			if tokens[0] == self.NEW_SV:
@@ -187,6 +188,8 @@ class Server:
 
 				time.sleep(0.5)
 				self.__send_server_data(conn, name)
+
+		conn.close()
 
 	# Server stuff
 	def __create_server(self):

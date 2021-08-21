@@ -64,8 +64,17 @@ class main_ui:
 			recv_info = self.network.recv()
 			tokens = recv_info.split(" ")
 
+			if tokens[0] == "[DISCONNECT]":
+				self.running = False
+
 			if tokens[0] == "[SERVER]":
-				print(recv_info)
+				tokens.pop(0)
+
+				for i in tokens:
+					key = i.split(":")[0]
+					name = i.split(":")[1]
+
+					print(key, ":", name)
 
 	def startUI(self):
 		recv_thread = threading.Thread(target = self.__receiver)
