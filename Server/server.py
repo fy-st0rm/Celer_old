@@ -37,10 +37,12 @@ class Server:
 	def __load_data(self):
 		with open(os.path.join("clients.json"), "r") as r:
 			self.clients = json.load(r)
-	
+		r.close()
+
 	def __save_data(self):
 		with open(os.path.join("clients.json"), "w") as w:
 			json.dump(self.clients, w)
+		w.close()
 
 	# Client handlers
 	def __handle_login(self, conn, addr):
@@ -107,6 +109,7 @@ class Server:
 			# Saving the info
 			with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
 				json.dump(sv_info, w)
+			w.close()
 
 	# Function to send the joined servers' data
 	def __send_server_data(self, conn, username):
@@ -137,11 +140,13 @@ class Server:
 
 		with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
 			sv_info = json.load(r)
-		
+		r.close()
+
 		sv_info["mem"].append(name)
 		
 		with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
 			json.dump(sv_info, w)
+		w.close()
 
 	def __handle_clients(self, conn, addr):	
 		# Handle login and signup
