@@ -80,7 +80,8 @@ class Server:
 											{
 												"password": password,
 												"ip": addr[0],
-												"sv": []
+												"sv": [],
+												"current_sv": ""
 											}
 										})
 					self.__save_data()
@@ -161,8 +162,9 @@ class Server:
 			
 			# Sending the online members the msg
 			for i in members:
-				if i in self.active_clients:
-					self.active_clients[i].send(msg.encode(self.FORMAT))
+				if self.clients[i]["current_sv"] == key:
+					if i in self.active_clients:
+						self.active_clients[i].send(msg.encode(self.FORMAT))
 
 			# Saving the msg
 			tokens = msg.split(" ")
@@ -232,6 +234,9 @@ class Server:
 				key = tokens[1]
 				self.__send_msg_history(conn, key)
 				current_sv = key
+
+				self.clients[client_online[1]]["current_sv"] = current_sv
+				self.__save_data()
 
 			# When user sends a msg
 			elif tokens[0] == self.MSG:

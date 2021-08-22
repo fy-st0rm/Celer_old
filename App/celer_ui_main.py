@@ -57,13 +57,10 @@ class main_ui:
 	def __chat_ui(self):	
 		self.chatEntry.pack(side = 'bottom')
 		self.chatDisplay.pack(side = 'top')
-
-	def drawUI(self):
-		self.serverList.pack(side = 'left')
-		self.vertical.pack(side = 'left')
-		self.serverCreatebutton.pack(side = 'top')
-		self.serverJoinbutton.pack(side= 'top')
-		#self.serverList.insert(1,'ServerNames:')
+		
+		self.chatDisplay.config(state = "normal")
+		self.chatDisplay.delete(1.0, "end")
+		self.chatDisplay.config(state = "disabled")
 
 	def winUI(self):
 		self.window.geometry('940x500')
@@ -90,7 +87,7 @@ class main_ui:
 
 			elif tokens[0] == "[SERVER]":
 				tokens.pop(0)
-				self.serverList.delete(1,'end')#Deletes the old list to remove repeating list
+				self.serverList.delete(0,'end')#Deletes the old list to remove repeating list
 				for i in tokens:
 					key = i.split(":")[0]
 					name = i.split(":")[1]
@@ -108,13 +105,21 @@ class main_ui:
 			# When it catches a msg
 			elif tokens[0] == "[MSG]":
 				if len(tokens) > 1:
+					self.chatDisplay.config(state = "normal")
+
 					tokens.pop(0)
-					print(self.key)
 					enc_msg = " ".join(tokens)
-					print(enc_msg)
 					dec_msg = decrypt(enc_msg, self.key)
-					print("recv:", dec_msg)	
 					self.chatDisplay.insert("end", dec_msg)
+				
+					self.chatDisplay.config(state = "disabled")
+
+	def drawUI(self):
+		self.serverList.pack(side = 'left')
+		self.vertical.pack(side = 'left')
+		self.serverCreatebutton.pack(side = 'top')
+		self.serverJoinbutton.pack(side= 'top')
+		#self.serverList.insert(1,'ServerNames:')
 
 	def startUI(self):
 		recv_thread = threading.Thread(target = self.__receiver)
@@ -124,6 +129,8 @@ class main_ui:
 		self.drawUI()
 		self.winUI()
 		
+
+	"""--------- Create server functions ----------"""
 	def createServer(self):
 		self.serverCreatewindow = tk.Toplevel(self.window) #Defining new window
 
@@ -142,6 +149,12 @@ class main_ui:
 		self.serverCreatewindow.title("Create Server")
 		self.serverCreatewindow.geometry("390x180")	
 
+	def revServername(self):
+		self.svName = self.serverName.get()#Server Name data!
+		self.key = self.__create_sv(self.svName)
+		self.serverCreatewindow.destroy()#Destroys server create window
+		tk.messagebox.showinfo("Information", "Server Created!") #Messages user that the server is created!
+
 	def __create_sv(self, name):	
 		# Sending the information about the creation of new server
 		token = "[NEW_SV]"
@@ -150,18 +163,7 @@ class main_ui:
 		self.network.send(info)
 		return sv_key
 
-	def __join_sv(self, key):	
-		# Joining the sv
-		token = "[JOIN]"
-		info = f"{token} name:{self.user} key:{key}"
-		self.network.send(info)
-
-	def revServername(self):
-		self.svName = self.serverName.get()#Server Name data!
-		self.key = self.__create_sv(self.svName)
-		self.serverCreatewindow.destroy()#Destroys server create window
-		tk.messagebox.showinfo("Information", "Server Created!") #Messages user that the server is created!
-
+	"""---------- Join server functions ----------"""
 	def joinServer(self):
 		self.serverJoinwindow = tk.Toplevel(self.window) #Defining new window
 
@@ -182,7 +184,13 @@ class main_ui:
 
 	def revServercode(self):
 		self.svCode = self.serverCode.get()#Server code data!	
-		print(self.svCode)	
+		self.__join_sv(self.svCode)	
+
+	def __join_sv(self, key):	
+		# Joining the sv
+		token = "[JOIN]"
+		info = f"{token} name:{self.user} key:{key}"
+		self.network.send(info)
 
 	def connectServerselected(self,event):
 		self.selectedServer = self.serverList.get('anchor')#Gets the data from the selected item
