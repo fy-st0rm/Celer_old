@@ -23,12 +23,11 @@ class main_ui:
 		#Defining General font
 		self.font = tk.font.Font( family = 'Bahnschrift Light', size = 20)
 		self.font2 = tk.font.Font( family = 'Bahnschrift Light', size = 10)
-		self.font3 = tk.font.Font( family = 'Bahnschrift Light', size = 15)
 
 		#Defining stuff
 		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = 'white')#'#d6d6d6') #Chat text box!
 		self.chatDisplay = tk.Text(self.window, width = 60, font = self.font, borderwidth = 1, bg = 'white', relief="solid")
-		self.serverList = tk.Listbox(self.window, width = 10, height = 100, borderwidth = 1, relief="solid", font = self.font3)
+		self.serverList = tk.Listbox(self.window, width = 10, height = 100, borderwidth = 1, relief="solid", font = self.font)
 		self.vertical = tk.Scrollbar(self.window, orient = 'vertical')
 		self.serverList.config(yscrollcommand = self.vertical.set)
 		self.vertical.config(command = self.serverList.yview)
@@ -67,7 +66,6 @@ class main_ui:
 		self.window.geometry('940x500')
 		self.window.wm_minsize(940, 500) #User can resize up to 940,500
 		self.window.mainloop()	
-		
 
 	def chatEntryDataGet(self,event):
 		self.chatEntryData = self.chatEntry.get() #Puts the data in the variable
@@ -121,7 +119,7 @@ class main_ui:
 		self.vertical.pack(side = 'left')
 		self.serverCreatebutton.pack(side = 'top')
 		self.serverJoinbutton.pack(side= 'top')
-		
+		#self.serverList.insert(1,'ServerNames:')
 
 	def startUI(self):
 		recv_thread = threading.Thread(target = self.__receiver)
@@ -187,7 +185,6 @@ class main_ui:
 	def revServercode(self):
 		self.svCode = self.serverCode.get()#Server code data!	
 		self.__join_sv(self.svCode)	
-		self.serverJoinwindow.destroy()
 
 	def __join_sv(self, key):	
 		# Joining the sv

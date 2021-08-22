@@ -59,14 +59,13 @@ class Server:
 				password = tokens[2].split(":")[1]
 				
 				# Checking for username and password
+				time.sleep(0.5)
 				if username in self.clients:
 					if password == self.clients[username]["password"]:
 						conn.send(self.ACCEPTED.encode(self.FORMAT))
 						return [True, username]
-					else:
-						conn.send(self.REJECTED.encode(self.FORMAT))
-				else:
-					conn.send(self.REJECTED.encode(self.FORMAT))
+				
+				conn.send(self.REJECTED.encode(self.FORMAT))
 
 			# If the info is from signup page
 			elif tokens[0] == self.SIGNUP:
@@ -74,6 +73,7 @@ class Server:
 				password = tokens[2].split(":")[1]
 
 				# Checking if username already doesnt exists
+				time.sleep(0.5)
 				if username not in self.clients:
 					# Saving the clients info
 					self.clients.update({username: 
@@ -177,18 +177,19 @@ class Server:
 
 	# Function to join in a server
 	def __join_to_server(self, key, name):
-		self.clients[name]["sv"].append(key)
-		self.__save_data()
+		if key not in self.clients[name]["sv"]:
+			self.clients[name]["sv"].append(key)
+			self.__save_data()
 
-		with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
-			sv_info = json.load(r)
-		r.close()
+			with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
+				sv_info = json.load(r)
+			r.close()
 
-		sv_info["mem"].append(name)
-		
-		with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
-			json.dump(sv_info, w)
-		w.close()
+			sv_info["mem"].append(name)
+			
+			with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
+				json.dump(sv_info, w)
+			w.close()
 
 	def __handle_clients(self, conn, addr):	
 		current_sv = None
