@@ -20,20 +20,22 @@ class main_ui:
 		self.user = user
 		self.key = ""
 
+		#Importing stuff
+		self.add_server_button_normal = tk.PhotoImage(file = 'Ui/Images/server_add_normal.png')
+		self.join_server_button_normal = tk.PhotoImage(file = 'Ui/Images/server_join_normal.png')
+		self.ok_button = tk.PhotoImage(file = 'Ui/Images/ok.png')
+
 		#Defining General font
 		self.font = tk.font.Font( family = 'Bahnschrift Light', size = 20)
 		self.font2 = tk.font.Font( family = 'Bahnschrift Light', size = 10)
 
 		#Defining stuff
-		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = 'white')#'#d6d6d6') #Chat text box!
-		self.chatDisplay = tk.Text(self.window, width = 60, font = self.font, borderwidth = 1, bg = 'white', relief="solid")
-		self.serverList = tk.Listbox(self.window, width = 10, height = 100, borderwidth = 1, relief="solid", font = self.font)
-		self.vertical = tk.Scrollbar(self.window, orient = 'vertical')
-		self.serverList.config(yscrollcommand = self.vertical.set)
-		self.vertical.config(command = self.serverList.yview)
+		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = '#40444b', fg= 'white') #Chat text box!
+		self.chatDisplay = tk.Text(self.window, width = 60, font = self.font, bg = '#36393f', borderwidth = 0, relief='solid', highlightthickness=0, fg = 'white')
+		self.serverList = tk.Listbox(self.window, width = 0, height = 100,font = self.font, bg = '#2e3137', fg = 'white', selectforeground='Black', selectbackground = 'white', activestyle='none', borderwidth = 0, relief='solid', highlightthickness=0)
 		self.serverSelect = self.serverList.curselection()
-		self.serverCreatebutton = tk.Button(text = 'Create Server',command = self.createServer)
-		self.serverJoinbutton = tk.Button(text= 'Join Server', command = self.joinServer)
+		self.serverCreatebutton = tk.Button(command = self.createServer, image = self.add_server_button_normal, borderwidth = 0, relief='sunken', bg = '#212325', activebackground="#212325")
+		self.serverJoinbutton = tk.Button(command = self.joinServer, image = self.join_server_button_normal, borderwidth = 0, relief='sunken', bg = '#212325', activebackground="#212325")
 
 		
 		#Checks if enter is pressed
@@ -54,6 +56,8 @@ class main_ui:
 		elif platform.system() == "Windows":
 			self.window.state("zoomed")		
 
+
+
 	def __chat_ui(self):	
 		self.chatEntry.pack(side = 'bottom')
 		self.chatDisplay.pack(side = 'top')
@@ -65,6 +69,7 @@ class main_ui:
 	def winUI(self):
 		self.window.geometry('940x500')
 		self.window.wm_minsize(940, 500) #User can resize up to 940,500
+		self.window.configure(bg='#212325' )
 		self.window.mainloop()	
 
 	def chatEntryDataGet(self,event):
@@ -116,10 +121,9 @@ class main_ui:
 
 	def drawUI(self):
 		self.serverList.pack(side = 'left')
-		self.vertical.pack(side = 'left')
 		self.serverCreatebutton.pack(side = 'top')
 		self.serverJoinbutton.pack(side= 'top')
-		#self.serverList.insert(1,'ServerNames:')
+
 
 	def startUI(self):
 		recv_thread = threading.Thread(target = self.__receiver)
@@ -135,19 +139,21 @@ class main_ui:
 		self.serverCreatewindow = tk.Toplevel(self.window) #Defining new window
 
 		#Defining stuff
-		self.serverName = tk.Entry(self.serverCreatewindow,width = 30, font = self.font2, borderwidth = 0, bg = '#d6d6d6' )
-		self.serverCreatelabel = tk.Label(self.serverCreatewindow, text = 'Enter the name of the server:', font = self.font2)
-		self.serverCreatebutton = tk.Button(self.serverCreatewindow, text = 'Create Server', command = self.revServername)
+		self.serverName = tk.Entry(self.serverCreatewindow,width = 30, font = self.font2, borderwidth = 0, bg = '#40444b', fg = 'white' )
+		self.serverCreatelabel = tk.Label(self.serverCreatewindow, text = 'Enter the name of the server:', font = self.font2, bg = '#36393f', fg = 'white')
+		self.server_Createbutton = tk.Button(self.serverCreatewindow, command = self.revServername, image = self.ok_button, bg = '#36393f',relief='sunken', activebackground="#36393f", borderwidth = 0 )
 
 		#Drawing stuff
-		self.serverCreatelabel.place(x=0,y=0)
-		self.serverName.place(x=0,y=30)
-		self.serverCreatebutton.place( x = 240, y = 30)
+		self.serverCreatelabel.place(x=100,y=0)
+		self.serverName.place(x=100,y=30)
+		self.server_Createbutton.place( x = 180, y = 50)
 		
 		#Window property stuff
 		self.serverCreatewindow.resizable(False, False)
 		self.serverCreatewindow.title("Create Server")
-		self.serverCreatewindow.geometry("390x180")	
+		self.serverCreatewindow.geometry("390x180")
+		self.serverCreatewindow.configure(bg = '#36393f')
+
 
 	def revServername(self):
 		self.svName = self.serverName.get()#Server Name data!
@@ -168,23 +174,27 @@ class main_ui:
 		self.serverJoinwindow = tk.Toplevel(self.window) #Defining new window
 
 		#Defining stuff
-		self.serverCode = tk.Entry(self.serverJoinwindow,width = 30, font = self.font2, borderwidth = 0, bg = '#d6d6d6' )
-		self.serverJoinlabel = tk.Label(self.serverJoinwindow, text = 'Enter the code of the server:', font = self.font2)
-		self.serverJoinbutton = tk.Button(self.serverJoinwindow, text = 'Join Server', command = self.revServercode)
+		self.serverCode = tk.Entry(self.serverJoinwindow,width = 30, font = self.font2, borderwidth = 0, bg = '#40444b', fg = 'white'  )
+		self.serverJoinlabel = tk.Label(self.serverJoinwindow, text = 'Enter the code of the server:', font = self.font2, bg = '#36393f', fg = 'white')
+		self.serverJoinbutton = tk.Button(self.serverJoinwindow, command = self.revServercode, image = self.ok_button, bg = '#36393f',relief='sunken', activebackground="#36393f", borderwidth = 0 )
 
 		#Drawing stuff
-		self.serverJoinlabel.place(x=0,y=0)
-		self.serverCode.place(x=0,y=30)
-		self.serverJoinbutton.place( x = 240, y = 30)
+		self.serverJoinlabel.place(x=100,y=0)
+		self.serverCode.place(x=100,y=30)
+		self.serverJoinbutton.place( x = 180, y = 50)
 		
 		#Window property stuff
 		self.serverJoinwindow.resizable(False, False)
 		self.serverJoinwindow.title("Join Server")
-		self.serverJoinwindow.geometry("390x180")	
+		self.serverJoinwindow.geometry("390x180")
+		self.serverJoinwindow.configure(bg = '#36393f')	
 
 	def revServercode(self):
 		self.svCode = self.serverCode.get()#Server code data!	
 		self.__join_sv(self.svCode)	
+		self.serverJoinwindow.destroy()
+		tk.messagebox.showinfo("Information", "Server joined!")
+
 
 	def __join_sv(self, key):	
 		# Joining the sv
