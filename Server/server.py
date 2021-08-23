@@ -30,6 +30,7 @@ class Server:
 		self.SERVER = "[SERVER]"
 		self.NEW_SV = "[NEW_SV]"
 		self.JOIN = "[JOIN]"
+		self.LEAVE = "[LEAVE]"
 		self.SELECT = "[SELECT]"
 	
 		self.running = True
@@ -191,6 +192,22 @@ class Server:
 				json.dump(sv_info, w)
 			w.close()
 
+	# Function to leave server
+	def __leave_server(self, key, name):
+		if key in self.clients[name]["sv"]:
+			self.clients[name]["sv"].remove(key)
+			self.__save_data()
+
+			with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
+				sv_info = json.load(r)
+			r.close()
+
+			sv_info["mem"].remove(name)
+
+			with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
+				json.dump(sv_info, w)
+			w.close()
+
 	def __handle_clients(self, conn, addr):	
 		current_sv = None
 
@@ -230,6 +247,13 @@ class Server:
 				time.sleep(0.5)
 				self.__send_server_data(conn, name)
 			
+			# When member leaves a server
+			elif tokens[0] == self.LEAVE:
+				name = tokens[1].split(":")[1]
+				key = tokens[2].split(":")[1]
+
+				self.__leave_server(key, name)
+
 			# When user selects a server
 			elif tokens[0] == self.SELECT:
 				key = tokens[1]
