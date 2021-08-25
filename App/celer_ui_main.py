@@ -33,7 +33,7 @@ class main_ui:
 		self.top_frame = tk.Frame(self.window, bg = "#212325")
 
 		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = '#40444b', fg= 'white') #Chat text box!
-		self.chatDisplay = tk.Text(self.window, width = 60, font = self.font, bg = '#36393f', borderwidth = 0, relief='solid', highlightthickness=0, fg = 'white')
+		self.chatDisplay = tk.Text(self.window, width = 60, height = 18, font = self.font, bg = '#36393f', borderwidth = 0, relief='solid', highlightthickness=0, fg = 'white')
 		self.serverList = tk.Listbox(self.window, width = 0, height = 100,font = self.font, bg = '#2e3137', fg = 'white', selectforeground='Black', selectbackground = 'white', activestyle='none', borderwidth = 0, relief='solid', highlightthickness=0)
 		self.serverSelect = self.serverList.curselection()
 		self.serverCreatebutton = tk.Button(self.top_frame, command = self.createServer, image = self.add_server_button_normal, borderwidth = 0, relief='sunken', bg = '#212325', activebackground="#212325", highlightthickness=0, bd=0)
@@ -58,12 +58,10 @@ class main_ui:
 		elif platform.system() == "Windows":
 			self.window.state("zoomed")		
 
-
-
 	def __chat_ui(self):	
-		self.chatEntry.pack(side = 'bottom')
 		self.chatDisplay.pack(side = 'top')
-		
+		self.chatEntry.pack(side = 'bottom')
+
 		self.chatDisplay.config(state = "normal")
 		self.chatDisplay.delete(1.0, "end")
 		self.chatDisplay.config(state = "disabled")

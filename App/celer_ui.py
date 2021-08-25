@@ -4,6 +4,8 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import messagebox
 from celer_ui_main import*
+import os
+import json
 
 
 class log_ui:
@@ -33,10 +35,10 @@ class log_ui:
 		#Wigets in tab1
 		self.title_signin = tk.Label(self.tab1,text = 'celer\nSign in Window', font = self.font, fg = '#6e6e6e', bg ='white')
 		self.title_username_signin = tk.Label(self.tab1,text = 'Username:', font = self.font, fg = '#6e6e6e', bg ='white')
-		self.username_signin = tk.Entry(self.tab1, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font)
+		self.username_signin = tk.Entry(self.tab1, bg = '#d6d6d6', width = 15, borderwidth = 0, font = self.font)
 		self.title_password_signin = tk.Label(self.tab1,text = 'Password:', font = self.font, fg = '#6e6e6e', bg ='white')
-		self.password_signin = tk.Entry(self.tab1, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font, show = '*')
-		self.button_singnin = tk.Button(self.tab1, text = 'Signin!', command = self.getdataSignin, image = self.button_nopressed, bg = 'white', borderwidth = 0, relief='sunken')
+		self.password_signin = tk.Entry(self.tab1, bg = '#d6d6d6', width = 15, borderwidth = 0, font = self.font, show = '*')
+		self.button_singnin = tk.Button(self.tab1, text = 'Signin!', command = self.getdataSignin, image = self.button_nopressed, bg = 'white', borderwidth = 0, relief='sunken', highlightthickness=0, bd=0)
 
 		#Wigets in tab2
 		self.title_signup = tk.Label(self.tab2,text = 'celer\nSign up Window', font = self.font, fg = '#6e6e6e', bg ='white')
@@ -44,10 +46,8 @@ class log_ui:
 		self.username_signup = tk.Entry(self.tab2, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font)
 		self.title_password_signup = tk.Label(self.tab2,text = 'Password:', font = self.font, fg = '#6e6e6e', bg ='white')
 		self.password_signup = tk.Entry(self.tab2, bg = '#d6d6d6', width = 20, borderwidth = 0, font = self.font, show = '*')
-		self.button_singnup = tk.Button(self.tab2, text = 'Signup!', command = self.getdataSignup, image = self.button_nopressed_up, bg = 'white', borderwidth = 0, relief='sunken')	
-
-
-
+		self.button_singnup = tk.Button(self.tab2, text = 'Signup!', command = self.getdataSignup, image = self.button_nopressed_up, bg = 'white', borderwidth = 0, relief='sunken', highlightthickness=0, bd=0)	
+		
 	def drawUI(self):
 		self.bg.place(x=-1, y=0)
 		self.notebook.place(x=490,y=30)#Drawing notebook
@@ -74,11 +74,45 @@ class log_ui:
 		self.notebook.add(self.tab1, text = 'Signin')
 		self.notebook.add(self.tab2, text = 'Signup')
 
-	def getdataSignin(self):
-		self.button_singnin.config(image = self.button_pressed)
-		username = self.username_signin.get()#Variable for username of Tab1
-		password = self.password_signin.get()#Variable for password of Tab1
+	def __save_login_data(self, username, password):
+		data = {"username": username, "password": password}
+		
+		if platform.system() == "Linux":
+			with open(".celer", "w") as w:
+				json.dump(data, w)
 
+		elif platform.system() == "Windows":
+			os.chdir("%APPDATA%")
+			with open(".celer", "w") as w:
+				json.dump(data, w)
+
+	def __read_login_data(self):
+		data = {}
+		
+		if platform.system() == "Linux":
+			with open(".celer", "r") as r:
+				data = json.load(r)
+
+		elif platform.system() == "Windows":
+			os.chdir("%APPDATA%")
+			with open(".celer", "r") as r:
+				data = json.load(r)
+
+		return data
+
+	def __auto_login(self):
+		if platform.system() == "Linux":
+			if os.path.isfile(".celer"):
+				data = self.__read_login_data()
+				self.__login(data["username"], data["password"])
+
+		elif platform.system() == "Windows":
+			os.chdir("%APPDATA%")
+			if os.path.isfile(".celer"):
+				data = self.__read_login_data()
+				self.__login(data["username"], data["password"])
+
+	def __login(self, username, password):
 		token = "[LOGIN]"
 		info = f"{token} username:{username} password:{password}"
 		self.network.send(info)
@@ -87,13 +121,21 @@ class log_ui:
 		reply = self.network.recv()
 		
 		if reply == "[ACCEPTED]":
+			self.__save_login_data(username, password)
+
 			self.window.destroy()
 			self.mainUi = main_ui(username, self.network)
-
 			self.mainUi.startUI()
 			
 		elif reply == "[REJECTED]":
 			tk.messagebox.showerror("error", "username or password is wrong!")
+
+	def getdataSignin(self):
+		self.button_singnin.config(image = self.button_pressed)
+		username = self.username_signin.get()#Variable for username of Tab1
+		password = self.password_signin.get()#Variable for password of Tab1
+
+		self.__login(username, password)
 
 	def getdataSignup(self):
 		self.button_singnup.config(image = self.button_pressed_up)
@@ -108,7 +150,10 @@ class log_ui:
 			self.network.send(info)
 			# Reciving the reply from the server
 			reply = self.network.recv()
+
 			if reply == "[ACCEPTED]":
+				self.__save_login_data(username, password)
+				
 				self.window.destroy()
 				self.mainUi = main_ui(username, self.network)
 				self.mainUi.startUI()
@@ -119,5 +164,7 @@ class log_ui:
 		#Window setup
 		self.window.geometry('900x600')	
 		self.window.resizable(False, False)
+	
+		self.__auto_login()
 		self.window.mainloop()
    
