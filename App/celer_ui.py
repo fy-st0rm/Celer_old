@@ -77,40 +77,22 @@ class log_ui:
 	def __save_login_data(self, username, password):
 		data = {"username": username, "password": password}
 		
-		if platform.system() == "Linux":
-			with open(".celer", "w") as w:
-				json.dump(data, w)
-
-		elif platform.system() == "Windows":
-			os.chdir("%APPDATA%")
-			with open(".celer", "w") as w:
-				json.dump(data, w)
+		with open(".celer", "w") as w:
+			json.dump(data, w)
 
 	def __read_login_data(self):
 		data = {}
 		
-		if platform.system() == "Linux":
-			with open(".celer", "r") as r:
-				data = json.load(r)
-
-		elif platform.system() == "Windows":
-			os.chdir("%APPDATA%")
-			with open(".celer", "r") as r:
-				data = json.load(r)
+		with open(".celer", "r") as r:
+			data = json.load(r)
 
 		return data
 
 	def __auto_login(self):
-		if platform.system() == "Linux":
-			if os.path.isfile(".celer"):
-				data = self.__read_login_data()
-				self.__login(data["username"], data["password"])
+		if os.path.isfile(".celer"):
+			data = self.__read_login_data()
+			self.__login(data["username"], data["password"])
 
-		elif platform.system() == "Windows":
-			os.chdir("%APPDATA%")
-			if os.path.isfile(".celer"):
-				data = self.__read_login_data()
-				self.__login(data["username"], data["password"])
 
 	def __login(self, username, password):
 		token = "[LOGIN]"
