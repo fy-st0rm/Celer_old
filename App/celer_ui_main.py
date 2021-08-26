@@ -130,12 +130,17 @@ class main_ui:
 			elif tokens[0] == "[SERVER]":
 				tokens.pop(0)
 				self.serverList.delete(0,'end')#Deletes the old list to remove repeating list
-				for i in tokens:
-					key = i.split(":")[0]
-					name = i.split(":")[1]
-					self.varNum+=1 #Server's position in the list
-					self.serverNames = key+":"+name 
-					self.serverList.insert(self.varNum,self.serverNames)#Inserts server list
+				
+				if len(tokens) > 0:
+					for i in tokens:
+						key = i.split(":")[0]
+						name = i.split(":")[1]
+						self.varNum+=1 #Server's position in the list
+						self.serverNames = key+":"+name 
+						self.serverList.insert(self.varNum,self.serverNames)#Inserts server list
+				else:
+					self.chatDisplay.pack_forget()
+					self.chatEntry.pack_forget()
 
 			# When server creation failed
 			elif tokens[0] == "[REJECTED]":
@@ -241,7 +246,6 @@ class main_ui:
 		if self.svCode:
 			self.__join_sv(self.svCode)	
 			self.serverJoinwindow.destroy()
-			tk.messagebox.showinfo("Information", "Server joined!")
 
 	def __join_sv(self, key):	
 		# Joining the sv
@@ -261,14 +265,14 @@ class main_ui:
 
 		self.__chat_ui()
 
-		"""---------- Join server functions ----------"""	
+		"""---------- Leave server functions ----------"""	
 	def leaveServer(self):
 		self.serverLeavewindow = tk.Toplevel(self.window) #Defining new window
 
 		#Defining stuff
 		self.serverCodeL = tk.Entry(self.serverLeavewindow,width = 20, font = self.font3, borderwidth = 0, bg = self.primaryfadedColor, fg = self.textColor  )
 		self.serverLeavelabel = tk.Label(self.serverLeavewindow, text = 'Enter the code of the server:', font = self.font2, bg = self.secondarybgColor, fg = self.textColor)
-		self.serverLeave_button = tk.Button(self.serverLeavewindow, command = self.revServercode, image = self.ok_button, bg = self.secondarybgColor,relief='sunken', activebackground=self.primaryColor, borderwidth = 0, highlightthickness=0, bd=0)
+		self.serverLeave_button = tk.Button(self.serverLeavewindow, command = self.revServercode_leave, image = self.ok_button, bg = self.secondarybgColor,relief='sunken', activebackground=self.primaryColor, borderwidth = 0, highlightthickness=0, bd=0)
 
 		#Drawing stuff
 		self.serverLeavelabel.place(x=100,y=0)
@@ -284,11 +288,9 @@ class main_ui:
 
 	def revServercode_leave(self):
 		svCode = self.serverCodeL.get() 
-		'''
-		gets server code!!!
-		'''
-
-
+		token = "[LEAVE]"
+		info = f"{token} username:{self.user} key:{svCode}"
+		self.network.send(info)
 
 	def change_color_create(self,event):
 		self.serverCreatebutton.config(bg  = self.primaryColor)	

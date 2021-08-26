@@ -178,24 +178,27 @@ class Server:
 
 	# Function to join in a server
 	def __join_to_server(self, key, name):
-		if key not in self.clients[name]["sv"]:
-			self.clients[name]["sv"].append(key)
-			self.__save_data()
+		sv_list = os.listdir(os.path.join("Servers/"))
+		if key in sv_list:
+			if key not in self.clients[name]["sv"]:
+				self.clients[name]["sv"].append(key)
+				self.__save_data()
 
-			with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
-				sv_info = json.load(r)
-			r.close()
+				with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
+					sv_info = json.load(r)
+				r.close()
 
-			sv_info["mem"].append(name)
-			
-			with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
-				json.dump(sv_info, w)
-			w.close()
+				sv_info["mem"].append(name)
+				
+				with open(os.path.join(f"Servers/{key}/sv_info.json"), "w") as w:
+					json.dump(sv_info, w)
+				w.close()
 
 	# Function to leave server
 	def __leave_server(self, key, name):
 		if key in self.clients[name]["sv"]:
 			self.clients[name]["sv"].remove(key)
+			self.clients[name]["current_sv"] = ""
 			self.__save_data()
 
 			with open(os.path.join(f"Servers/{key}/sv_info.json"), "r") as r:
@@ -253,6 +256,7 @@ class Server:
 				key = tokens[2].split(":")[1]
 
 				self.__leave_server(key, name)
+				self.__send_server_data(conn, client_online[1])
 
 			# When user selects a server
 			elif tokens[0] == self.SELECT:
