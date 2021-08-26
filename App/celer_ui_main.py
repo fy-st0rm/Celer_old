@@ -24,20 +24,41 @@ class main_ui:
 		self.add_server_button_normal = tk.PhotoImage(file = 'Ui/Images/server_add_normal.png')
 		self.join_server_button_normal = tk.PhotoImage(file = 'Ui/Images/server_join_normal.png')
 		self.ok_button = tk.PhotoImage(file = 'Ui/Images/ok.png')
+		self.logo = tk.PhotoImage(file = 'Ui/Images/logo.png')
+		self.leave_server = tk.PhotoImage(file = 'Ui/Images/leave_server.png')
 
 		#Defining General font
 		self.font = tk.font.Font( family = 'Bahnschrift Light', size = 20)
 		self.font2 = tk.font.Font( family = 'Bahnschrift Light', size = 10)
+		self.font3 = tk.font.Font( family = 'Bahnschrift Light', size = 15)
+
+		#Color list
+		self.bgColor = 'white'
+		self.secondarybgColor = '#f2f3f5'
+		self.thirdbgColor = '#e3e5e8'
+		self.fourthbgColor = '#d1d3d7'
+		self.textColor = '#060607'
+		self.selectColor = '#4f5660'
+		self.primaryColor = '#b5b2ff'
+		self.greyColor = '#878787'
+		self.primaryfadedColor = '#bfbdff'
+		self.primarydarkerColor = '#8682ff'
 
 		#Defining stuff
-		self.top_frame = tk.Frame(self.window, bg = "#212325")
+		self.top_frame = tk.Frame(self.window, bg = self.bgColor)
 
-		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = '#40444b', fg= 'white') #Chat text box!
-		self.chatDisplay = tk.Text(self.window, width = 60, height = 18, font = self.font, bg = '#36393f', borderwidth = 0, relief='solid', highlightthickness=0, fg = 'white')
-		self.serverList = tk.Listbox(self.window, width = 0, height = 100,font = self.font, bg = '#2e3137', fg = 'white', selectforeground='Black', selectbackground = 'white', activestyle='none', borderwidth = 0, relief='solid', highlightthickness=0)
+		self.chatEntry = tk.Entry(self.window, width = 60, font = self.font, borderwidth = 0, bg = self.primaryfadedColor, fg= self.greyColor, text = 'Message!') #Chat text box!
+		self.chatDisplay = tk.Text(self.window, width = 60, height = 18, font = self.font, bg = self.secondarybgColor, borderwidth = 0, relief='solid', highlightthickness=0, fg = self.primarydarkerColor)
+		self.serverList = tk.Listbox(self.window, width = 0, height = 100,font = self.font, bg = self.secondarybgColor, fg = self.textColor, selectforeground=self.textColor, selectbackground = self.primaryColor, activestyle='none', borderwidth = 0, relief='solid', highlightthickness=0)
 		self.serverSelect = self.serverList.curselection()
-		self.serverCreatebutton = tk.Button(self.top_frame, command = self.createServer, image = self.add_server_button_normal, borderwidth = 0, relief='sunken', bg = '#212325', activebackground="#212325", highlightthickness=0, bd=0)
-		self.serverJoinbutton = tk.Button(self.top_frame, command = self.joinServer, image = self.join_server_button_normal, borderwidth = 0, relief='sunken', bg = '#212325', activebackground="#212325", highlightthickness=0, bd=0)
+		self.serverCreatebutton = tk.Button(self.top_frame, command = self.createServer, image = self.add_server_button_normal, borderwidth = 0, relief='sunken', bg = self.bgColor, activebackground= self.primaryColor, highlightthickness=0, bd=0)
+		self.serverJoinbutton = tk.Button(self.top_frame, command = self.joinServer, image = self.join_server_button_normal, borderwidth = 0, relief='sunken', bg = self.bgColor, activebackground=self.primaryColor, highlightthickness=0, bd=0)
+		self.serverLeavebutton = tk.Button(self.top_frame, command = self.leaveServer, image = self.leave_server, borderwidth = 0, relief='sunken', bg = self.bgColor, activebackground=self.primaryColor, highlightthickness=0, bd=0)
+		self.logo_img = tk.Label(self.window, image = self.logo, bg = self.bgColor)
+		self.logo_text = tk.Label(self.window, text = 'Celer', bg = self.bgColor, font = self.font)
+
+		self.infobox_create = tk.Label(self.window, width = 20, height = 5, text = 'Create your\n own server!', font = self.font2, bg = self.primaryfadedColor)
+		self.infobox_join = tk.Label(self.window, width = 20, height = 5, text = "Join your\n friend's server!", font = self.font2, bg = self.primaryfadedColor)
 
 		
 		#Checks if enter is pressed
@@ -48,6 +69,7 @@ class main_ui:
 
 		#Server list number temporary variable
 		self.varNum = 0
+		self.used = False
 
 		#Gets the data of selected item from the list
 		self.selectionServer = self.serverList.curselection()
@@ -56,7 +78,22 @@ class main_ui:
 		if platform.system() == "Linux":
 			self.window.attributes('-zoomed', True)
 		elif platform.system() == "Windows":
-			self.window.state("zoomed")		
+			self.window.state("zoomed")	
+
+		self.serverCreatebutton.bind("<Enter>", self.change_color_create)	
+		self.serverCreatebutton.bind("<Leave>", self.change_color_def_create)
+
+
+		self.serverJoinbutton.bind("<Enter>", self.change_color_join)	
+		self.serverJoinbutton.bind("<Leave>", self.change_color_def_join)	
+
+		self.serverLeavebutton.bind("<Enter>", self.change_color_leave)
+		self.serverLeavebutton.bind("<Leave>", self.change_color_def_leave)
+	
+	
+		self.chatEntry.bind("<Enter>", self.del_lableText)
+
+		self.chatEntry.insert(1,"Type your text here!")
 
 	def __chat_ui(self):	
 		self.chatDisplay.pack(side = 'top')
@@ -69,7 +106,7 @@ class main_ui:
 	def winUI(self):
 		self.window.geometry('940x500')
 		self.window.wm_minsize(940, 500) #User can resize up to 940,500
-		self.window.configure(bg='#212325' )
+		self.window.configure(bg=self.bgColor )
 		self.window.mainloop()	
 
 	def chatEntryDataGet(self,event):
@@ -120,10 +157,15 @@ class main_ui:
 					self.chatDisplay.config(state = "disabled")
 
 	def drawUI(self):
-		self.top_frame.pack(side = "top")
+		self.logo_img.place(x=0,y=0)
+		self.logo_text.place(x = 32, y=0)
+		self.top_frame.pack(side = 'top')
 		self.serverList.pack(side = 'left')
 		self.serverCreatebutton.pack(side = "left")
 		self.serverJoinbutton.pack(side = "left")
+		self.serverLeavebutton.pack(side = 'left')
+		
+
 
 
 	def startUI(self):
@@ -140,20 +182,23 @@ class main_ui:
 		self.serverCreatewindow = tk.Toplevel(self.window) #Defining new window
 
 		#Defining stuff
-		self.serverName = tk.Entry(self.serverCreatewindow,width = 30, font = self.font2, borderwidth = 0, bg = '#40444b', fg = 'white' )
-		self.serverCreatelabel = tk.Label(self.serverCreatewindow, text = 'Enter the name of the server:', font = self.font2, bg = '#36393f', fg = 'white')
-		self.server_Createbutton = tk.Button(self.serverCreatewindow, command = self.revServername, image = self.ok_button, bg = '#36393f',relief='sunken', activebackground="#36393f", borderwidth = 0, highlightthickness=0, bd=0)
+		self.serverName = tk.Entry(self.serverCreatewindow,width = 20, font = self.font3, borderwidth = 0, bg = self.primaryfadedColor, fg = self.textColor )
+		self.serverCreatelabel = tk.Label(self.serverCreatewindow, text = 'Enter the name of the server:', font = self.font2, bg = self.secondarybgColor, fg = self.textColor)
+		self.server_Createbutton = tk.Button(self.serverCreatewindow, command = self.revServername, image = self.ok_button, bg = self.secondarybgColor,relief='sunken', activebackground=self.primaryColor, borderwidth = 0, highlightthickness=0, bd=0)
 
 		#Drawing stuff
 		self.serverCreatelabel.place(x=100,y=0)
-		self.serverName.place(x=100,y=30)
-		self.server_Createbutton.place( x = 180, y = 50)
+		self.serverName.place(x=80,y=60)
+		self.server_Createbutton.place( x = 180, y = 140)
+
+		self.server_Createbutton.bind("<Enter>", self.change_color_sv_Create)	
+		self.server_Createbutton.bind("<Leave>", self.change_color_def_sv_Create)
 		
 		#Window property stuff
 		self.serverCreatewindow.resizable(False, False)
 		self.serverCreatewindow.title("Create Server")
 		self.serverCreatewindow.geometry("390x180")
-		self.serverCreatewindow.configure(bg = '#36393f')
+		self.serverCreatewindow.configure(bg = self.secondarybgColor)
 
 
 	def revServername(self):
@@ -176,20 +221,20 @@ class main_ui:
 		self.serverJoinwindow = tk.Toplevel(self.window) #Defining new window
 
 		#Defining stuff
-		self.serverCode = tk.Entry(self.serverJoinwindow,width = 30, font = self.font2, borderwidth = 0, bg = '#40444b', fg = 'white'  )
-		self.serverJoinlabel = tk.Label(self.serverJoinwindow, text = 'Enter the code of the server:', font = self.font2, bg = '#36393f', fg = 'white')
-		self.serverJoinbutton = tk.Button(self.serverJoinwindow, command = self.revServercode, image = self.ok_button, bg = '#36393f',relief='sunken', activebackground="#36393f", borderwidth = 0, highlightthickness=0, bd=0)
+		self.serverCode = tk.Entry(self.serverJoinwindow,width = 20, font = self.font3, borderwidth = 0, bg = self.primaryfadedColor, fg = self.textColor  )
+		self.serverJoinlabel = tk.Label(self.serverJoinwindow, text = 'Enter the code of the server:', font = self.font2, bg = self.secondarybgColor, fg = self.textColor)
+		self.serverJoin_button = tk.Button(self.serverJoinwindow, command = self.revServercode, image = self.ok_button, bg = self.secondarybgColor,relief='sunken', activebackground=self.primaryColor, borderwidth = 0, highlightthickness=0, bd=0)
 
 		#Drawing stuff
 		self.serverJoinlabel.place(x=100,y=0)
-		self.serverCode.place(x=100,y=30)
-		self.serverJoinbutton.place( x = 180, y = 50)
+		self.serverCode.place(x=80,y=60)
+		self.serverJoin_button.place( x = 180, y = 140)
 		
 		#Window property stuff
 		self.serverJoinwindow.resizable(False, False)
 		self.serverJoinwindow.title("Join Server")
 		self.serverJoinwindow.geometry("390x180")
-		self.serverJoinwindow.configure(bg = '#36393f')	
+		self.serverJoinwindow.configure(bg = self.secondarybgColor)	
 
 	def revServercode(self):
 		self.svCode = self.serverCode.get()#Server code data!	
@@ -205,7 +250,7 @@ class main_ui:
 		self.network.send(info)
 
 	def connectServerselected(self,event):
-		self.selectedServer = self.serverList.get('anchor')#Gets the data from the selected item
+		self.selectedServer = self.serverList.get('anchor')#Gets the data from the selected itemr
 		
 		# Telling the server that we selected a server
 		self.key = self.selectedServer.split(":")[0]
@@ -215,3 +260,72 @@ class main_ui:
 		self.chatDisplay.pack_forget()
 
 		self.__chat_ui()
+
+		"""---------- Join server functions ----------"""	
+	def leaveServer(self):
+		self.serverLeavewindow = tk.Toplevel(self.window) #Defining new window
+
+		#Defining stuff
+		self.serverCodeL = tk.Entry(self.serverLeavewindow,width = 20, font = self.font3, borderwidth = 0, bg = self.primaryfadedColor, fg = self.textColor  )
+		self.serverLeavelabel = tk.Label(self.serverLeavewindow, text = 'Enter the code of the server:', font = self.font2, bg = self.secondarybgColor, fg = self.textColor)
+		self.serverLeave_button = tk.Button(self.serverLeavewindow, command = self.revServercode, image = self.ok_button, bg = self.secondarybgColor,relief='sunken', activebackground=self.primaryColor, borderwidth = 0, highlightthickness=0, bd=0)
+
+		#Drawing stuff
+		self.serverLeavelabel.place(x=100,y=0)
+		self.serverCodeL.place(x=80,y=60)
+		self.serverLeave_button.place( x = 180, y = 140)
+		
+		#Window property stuff
+		self.serverLeavewindow.resizable(False, False)
+		self.serverLeavewindow.title("Leave Server")
+		self.serverLeavewindow.geometry("390x180")
+		self.serverLeavewindow.configure(bg = self.secondarybgColor)	
+
+
+	def revServercode_leave(self):
+		svCode = self.serverCodeL.get() 
+		'''
+		gets server code!!!
+		'''
+
+
+
+	def change_color_create(self,event):
+		self.serverCreatebutton.config(bg  = self.primaryColor)	
+		if self.window.state() == 'zoomed':
+			self.infobox_create.place(x = 600, y = 50)
+
+
+	def change_color_def_create(self,event):
+		self.serverCreatebutton.config(bg = self.bgColor)
+		self.infobox_create.place_forget()	
+
+	
+	def change_color_join(self,event):
+		self.serverJoinbutton.config(bg  = self.primaryColor)
+		if self.window.state() == 'zoomed':	
+			self.infobox_join.place(x = 640, y = 50)
+
+
+	def change_color_def_join(self,event):
+		self.serverJoinbutton.config(bg = self.bgColor)	
+		self.infobox_join.place_forget()
+
+	def del_lableText(self,event):
+		if self.used == False:
+			self.chatEntry.config(fg = self.textColor)
+			self.chatEntry.delete(0,"end")
+			self.used = True		
+
+	def change_color_sv_Create(self,event):
+		self.server_Createbutton.config(bg = self.primaryColor)	
+
+	def change_color_def_sv_Create(self,event):
+		self.server_Createbutton.config(bg = self.secondarybgColor)	
+
+	def change_color_leave(self,event):
+		self.serverLeavebutton.config(bg = self.secondarybgColor)
+
+	def change_color_def_leave(self,event):
+		self.serverLeavebutton.config(bg = self.bgColor)	
+
