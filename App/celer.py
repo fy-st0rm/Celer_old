@@ -2,8 +2,8 @@ from celer_ui import*
 from network import *
 
 # Network constants
-IP = "127.0.1.1"
-PORT = 5050
+IP = socket.gethostbyname("8.tcp.ngrok.io")
+PORT = 11874
 BUFFER = 1024
 FORMAT = "utf-8"
 

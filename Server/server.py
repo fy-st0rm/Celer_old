@@ -11,7 +11,7 @@ class Server:
 	def __init__(self):
 		# Server details
 		self.IP = socket.gethostbyname(socket.gethostname())
-		self.PORT = 5050
+		self.PORT = 5001
 		self.BUFFER = 1024
 		self.FORMAT = "utf-8"
 		self.ADDR = (self.IP, self.PORT)
@@ -275,11 +275,11 @@ class Server:
 
 	# Server stuff
 	def __create_server(self):
-		try:
-			self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.server.bind(self.ADDR)
-		except Exception as e:
-			print(f"{colors.RED}{e}{colors.DEFAULT}")
+		#try:
+		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.server.bind(self.ADDR)
+		#except Exception as e:
+		#	print(f"{colors.RED}{e}{colors.DEFAULT}")
 
 	def start(self):
 		print(f"{colors.GREEN}Server is starting....{colors.DEFAULT}")
@@ -295,14 +295,14 @@ class Server:
 		self.server.listen()
 
 		while self.running:
-			try:
-				conn, addr = self.server.accept()
-				
-				# Creating a new thread
-				client_thread = threading.Thread(target = self.__handle_clients, args = (conn, addr, ))
-				client_thread.start()
-			except Exception as e:
-				print(f"{colors.RED}{e}{colors.DEFAULT}")
+			#try:
+			conn, addr = self.server.accept()
+			
+			# Creating a new thread
+			client_thread = threading.Thread(target = self.__handle_clients, args = (conn, addr, ))
+			client_thread.start()
+			#except Exception as e:
+			#	print(f"{colors.RED}{e}{colors.DEFAULT}")
 
 
 if __name__ == "__main__":
